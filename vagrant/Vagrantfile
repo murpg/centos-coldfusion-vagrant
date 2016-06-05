@@ -1,0 +1,76 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.require_version ">= 1.6"
+VAGRANTFILE_API_VERSION = "2"
+
+require 'yaml'
+
+# server configuration
+vm_ip_address = "192.168.140.100"
+vm_naked_hostname = "coldfusion.dev"
+vm_name = "DesignByGeorge-CF11"
+
+# synced folder configuration
+synced_webroot_local = "../www"
+synced_webroot_box = "/var/wwwDefault/"
+synced_webroot_id = "wwwDefault"
+synced_webroot_owner = "vagrant"
+synced_webroot_group = "vagrant"
+
+synced_parent_local = "../../"
+synced_parent_box = "/vagrant-parent"
+synced_parent_id = "vagrant-parent"
+synced_parent_owner = "vagrant"
+synced_parent_group = "vagrant"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Using CentOS 7.1 built with Packer
+  config.vm.box = "centos-coldfusion-1.1.2"
+
+  config.vm.provider "vmware_workstation" do |v, override|
+    override.vm.box_url = "https://www.dropbox.com/s/tmwqa4ond3wou3e/centos-coldfusion-1.1.2.box?dl=1"
+  end
+
+  config.vm.provider "virtualbox" do |v, override|
+    override.vm.box_url = "https://www.dropbox.com/s/uuodgvm0qngsfle/centos-coldfusion-1.1.2.box?dl=1"
+
+    v.name = vm_name
+    # the next two settings enable using the host computer's dns inside the vagrant box
+    # enable dns proxy in nat mode
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    # use the host's resolver as a dns proxy in nat mode
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  end
+
+  config.vm.network :private_network, ip: vm_ip_address
+
+  # Look for other sites checked out in the same directory as this repo
+  # that have a "VagrantConfig.yaml" in their root.
+  hosts = []
+  siteConfigs = Dir["../../*/VagrantConfig/*.yaml"]
+  siteConfigs.each do |config|
+    thisConfig = YAML.load_file( config )
+    puts "Found '#{thisConfig["name"]}' in #{config.sub! '../../', ''}"
+    hosts.concat thisConfig["hosts"]
+  end
+
+  if Vagrant.has_plugin?("vagrant-hostsupdater")
+    config.vm.hostname = vm_naked_hostname
+    config.hostsupdater.aliases = hosts
+  end
+
+  # Configure dynamic sites
+  config.vm.provision :shell, :path => "provisioners/configure-sites.sh", :privileged => true, :args => [
+    File.expand_path('../../../', __FILE__)
+  ]
+
+  # Confirm setup is complete and output connection info
+  config.vm.provision :shell, :path => "provisioners/final-output.sh", run: "always", :privileged => true, :args => [
+    vm_naked_hostname, vm_ip_address
+  ]
+
+  # Add synced folders
+  config.vm.synced_folder synced_webroot_local, synced_webroot_box, :id => synced_webroot_id, :owner => synced_webroot_owner, :group => synced_webroot_group
+  config.vm.synced_folder synced_parent_local, synced_parent_box, :id => synced_parent_id, :owner => synced_parent_owner, :group => synced_parent_group
+end

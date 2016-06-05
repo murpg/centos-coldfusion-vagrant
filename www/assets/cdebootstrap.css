@@ -1,0 +1,56 @@
+body {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar-brand,
+.brand-name {
+  font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400
+}
+
+p.lead {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400
+}
+
+.cde-page-header {
+  position: relative;
+  padding: 30px 15px;
+  text-align: left;
+  color: rgba(255, 255, 255, .8);
+  background-color: #4c838a;
+  background-image: url(bg.png);
+  margin-bottom: 30px;
+  font-size: 20px
+}
+
+.cde-page-header h1 {
+  margin-top: 0;
+  color: #fff
+}
+
+.cde-page-header p {
+  margin-bottom: 0;
+  line-height: 1.4
+}
+
+.cde-page-header .container {
+  position: relative
+}
+
+footer {
+    padding: 50px 0
+}
+
+footer .footer-left,
+footer .footer-right,
+footer .footer-below {
+    text-align: left
+}

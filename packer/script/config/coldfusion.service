@@ -1,0 +1,10 @@
+[Unit]
+Description=ColdFusion 11 Application Server
+
+[Service]
+Type=forking
+ExecStart=/opt/coldfusion11/cfusion/bin/coldfusion start
+ExecStop=/opt/coldfusion11/cfusion/bin/coldfusion stop
+
+[Install]
+WantedBy=default.target
